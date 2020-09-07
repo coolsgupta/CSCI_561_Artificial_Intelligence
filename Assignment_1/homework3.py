@@ -76,20 +76,6 @@ class BFSPathFinder(PathFinder):
         super(BFSPathFinder, self).__init__(data)
 
 
-class BFSPathFinder(PathFinder):
-    def __init__(self, data):
-        super(BFSPathFinder, self).__init__(data)
-
-    def find_reachable_points(self, current_point, allowed_actions):
-        reachable_points_from_action = {}
-        for action in allowed_actions:
-            next_state = Utils.add_action_step(current_point, action)
-            if next_state in self.action_points:
-                reachable_points_from_action[next_state] = action
-
-        return reachable_points_from_action
-
-
 if __name__ == '__main__':
     input_case = 'asnlib/public/sample/input1.txt'
     path_finder = PathFinder(Utils.read_file(input_case))
