@@ -88,27 +88,28 @@ class BFSPathFinder(PathFinder):
     def backtrack_path(self):
         current_state = self.goal_location
         path = deque()
+        path.append(self.goal_location)
         cost = 0
         while current_state != self.entrance_location:
-            path.append(current_state)
             current_state = self.adjacency_map.get(current_state, {}).get(DictKeys.LAST_STATE)
             cost += Utils.cal_euclidean_distance(current_state, path[-1])
+            path.append(current_state)
         return path, cost
 
     def bfs(self):
         visited, bfs_queue = set([self.entrance_location]), deque([self.entrance_location])
         while bfs_queue:
             current_state = bfs_queue.popleft()
+            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
 
-            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
-            self.adjacency_map[current_state] = reachable_states
             for state in reachable_states:
                 if state not in visited:
                     visited.add(state)
                     bfs_queue.append(state)
+                    self.adjacency_map[state] = reachable_states[state]
 
         if self.reached_goal:
             path, cost = self.backtrack_path()
