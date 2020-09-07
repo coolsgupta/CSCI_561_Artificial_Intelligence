@@ -38,7 +38,7 @@ class Utils:
 
     @staticmethod
     def cal_euclidean_distance(point_1, point_2):
-        return sum([(x-y)**2 for x,y in zip(point_1, point_2)])**0.5
+        return sum([(x-y)**2 for x, y in zip(point_1, point_2)])**0.5
 
     @staticmethod
     def add_action_step(current_point, action):
@@ -57,19 +57,23 @@ class PathFinder:
     def get_action_point_action_map(self, action_point_action_list):
         return {tuple(x[:3]): x[3:] for x in action_point_action_list}
 
-
-class BFSPathFinder(PathFinder):
-    def __init__(self, data):
-        super(BFSPathFinder, self).__init__(data)
-
     def find_reachable_points(self, current_point, allowed_actions):
         reachable_points_from_action = {}
         for action in allowed_actions:
             next_state = Utils.add_action_step(current_point, action)
             if next_state in self.action_points:
-                reachable_points_from_action[next_state] = action
+                reachable_points_from_action[next_state] = {
+                    'last_state': current_point,
+                    'action_taken_to_reach': action,
+                    'cost_of_last_step': Utils.cal_euclidean_distance(current_point, next_state)
+                }
 
         return reachable_points_from_action
+
+
+class BFSPathFinder(PathFinder):
+    def __init__(self, data):
+        super(BFSPathFinder, self).__init__(data)
 
 
 if __name__ == '__main__':
