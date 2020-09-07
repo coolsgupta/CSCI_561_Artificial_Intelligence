@@ -2,11 +2,11 @@ from collections import deque
 import heapq
 import traceback
 
+
 class DictKeys:
     LAST_STATE = 'last_state'
     ACTION_TAKEN_TO_REACH = 'action_taken_to_reach'
     COST_OF_LAST_STEP = 'cost_of_last_step'
-
 
 
 class Utils:
