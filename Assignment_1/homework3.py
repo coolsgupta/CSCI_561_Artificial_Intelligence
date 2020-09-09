@@ -97,7 +97,7 @@ class BFSPathFinder(PathFinder):
         return path, cost
 
     def bfs(self):
-        visited, bfs_queue = set([self.entrance_location]), deque([self.entrance_location])
+        visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
         while bfs_queue:
             current_state = bfs_queue.popleft()
             reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
