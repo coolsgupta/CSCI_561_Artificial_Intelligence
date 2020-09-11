@@ -124,6 +124,33 @@ class BFSPathFinder(PathFinder):
             raise Exception('Path not found')
 
 
+class UCSPathFinder(PathFinder):
+    def __init__(self, data):
+        super(UCSPathFinder, self).__init__(data)
+
+    def ucs(self):
+        visited, ucs_queue = {self.entrance_location}, deque([self.entrance_location])
+        while ucs_queue:
+            current_state = ucs_queue.popleft()
+            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
+            if current_state == self.goal_location:
+                self.reached_goal = True
+                break
+
+            for state in reachable_states:
+                if state not in visited:
+                    visited.add(state)
+                    ucs_queue.append(state)
+                    self.adjacency_map[state] = reachable_states[state]
+
+        if self.reached_goal:
+            path, cost = self.backtrack_path()
+            return path, cost
+
+        else:
+            raise Exception('Path not found')
+
+
 if __name__ == '__main__':
     input_case = 'asnlib/public/sample/input4.txt'
     try:
