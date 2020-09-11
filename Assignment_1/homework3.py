@@ -155,6 +155,44 @@ class UCSPathFinder(PathFinder):
             raise Exception('Path not found')
 
 
+class AStarPathFinder(PathFinder):
+    def __init__(self, data):
+        super(AStarPathFinder, self).__init__(data)
+
+    def heuristic_function(self, state):
+        del_dist = sorted(list(map(lambda i, j: abs(i - j), state, self.goal_location)))
+        return 1.4*del_dist[0] + 1.4*(del_dist[1] - del_dist[0]) + del_dist[2]
+
+    def a_star(self):
+        visited, a_star_queue = {self.entrance_location}, PriorityQueue()
+        a_star_queue.put((0, self.entrance_location))
+
+        while a_star_queue:
+            current_state = a_star_queue.get()[1]
+            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
+            if current_state == self.goal_location:
+                self.reached_goal = True
+                break
+
+            for state in reachable_states:
+                if state not in visited:
+                    visited.add(state)
+                    a_star_queue.put(
+                        (
+                            reachable_states[state][Constants.COST_TILL_CURRENT_STEP] + self.heuristic_function(state),
+                            state
+                        )
+                    )
+                    self.adjacency_map[state] = reachable_states[state]
+
+        if self.reached_goal:
+            path, cost = self.backtrack_path()
+            return path, cost
+
+        else:
+            raise Exception('Path not found')
+
+
 if __name__ == '__main__':
     input_case = 'asnlib/public/sample/input2.txt'
     try:
