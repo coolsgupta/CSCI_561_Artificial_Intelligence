@@ -1,5 +1,4 @@
 from collections import deque
-import heapq
 from queue import PriorityQueue
 import traceback
 
@@ -50,7 +49,8 @@ class Utils:
 
     @staticmethod
     def cal_euclidean_distance(point_1, point_2):
-        return sum([(x-y)**2 for x, y in zip(list(point_1), list(point_2))])**0.5
+        # return sum([(x-y)**2 for x, y in zip(list(point_1), list(point_2))])**0.5
+        return Constants.D1_dist if abs(sum(map(lambda i, j: i - j, point_1, point_2))) == 1 else Constants.D2_dist
 
     @staticmethod
     def add_action_step(current_point, action):
@@ -131,9 +131,11 @@ class UCSPathFinder(PathFinder):
         super(UCSPathFinder, self).__init__(data)
 
     def ucs(self):
-        visited, ucs_queue = {self.entrance_location}, deque([self.entrance_location])
+        visited, ucs_queue = {self.entrance_location}, PriorityQueue()
+        ucs_queue.put((0, self.entrance_location))
+
         while ucs_queue:
-            current_state = ucs_queue.popleft()
+            current_state = ucs_queue.get()[1]
             reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
             if current_state == self.goal_location:
                 self.reached_goal = True
@@ -142,7 +144,7 @@ class UCSPathFinder(PathFinder):
             for state in reachable_states:
                 if state not in visited:
                     visited.add(state)
-                    ucs_queue.append(state)
+                    ucs_queue.put((reachable_states[state][Constants.COST_TILL_CURRENT_STEP], state))
                     self.adjacency_map[state] = reachable_states[state]
 
         if self.reached_goal:
@@ -154,10 +156,10 @@ class UCSPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input4.txt'
+    input_case = 'asnlib/public/sample/input2.txt'
     try:
-        path_finder = BFSPathFinder(Utils.read_file(input_case))
-        path, cost = path_finder.bfs()
+        path_finder = UCSPathFinder(Utils.read_file(input_case))
+        path, cost = path_finder.ucs()
 
     except Exception as e:
         print(traceback.format_exc())
