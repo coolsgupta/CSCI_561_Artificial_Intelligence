@@ -1,6 +1,7 @@
 from collections import deque
 from queue import PriorityQueue
 import traceback
+import time
 
 
 class Constants:
@@ -103,7 +104,7 @@ class BFSPathFinder(PathFinder):
     def __init__(self, data):
         super(BFSPathFinder, self).__init__(data)
 
-    def bfs(self):
+    def find_path(self):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
         while bfs_queue:
             current_state = bfs_queue.popleft()
@@ -130,7 +131,7 @@ class UCSPathFinder(PathFinder):
     def __init__(self, data):
         super(UCSPathFinder, self).__init__(data)
 
-    def ucs(self):
+    def find_path(self):
         visited, ucs_queue = {self.entrance_location}, PriorityQueue()
         ucs_queue.put((0, self.entrance_location))
 
@@ -161,9 +162,9 @@ class AStarPathFinder(PathFinder):
 
     def heuristic_function(self, state):
         del_dist = sorted(list(map(lambda i, j: abs(i - j), state, self.goal_location)))
-        return 1.4*del_dist[0] + 1.4*(del_dist[1] - del_dist[0]) + del_dist[2]
+        return 10*(1.4*del_dist[0] + 1.4*(del_dist[1] - del_dist[0]) + (del_dist[2]-del_dist[1]))
 
-    def a_star(self):
+    def find_path(self):
         visited, a_star_queue = {self.entrance_location}, PriorityQueue()
         a_star_queue.put((0, self.entrance_location))
 
@@ -194,15 +195,17 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input2.txt'
+    input_case = 'asnlib/public/sample/input7.txt'
+    start = time.time()
     try:
-        path_finder = UCSPathFinder(Utils.read_file(input_case))
-        path, cost = path_finder.ucs()
+        path_finder = AStarPathFinder(Utils.read_file(input_case))
+        path, cost = path_finder.find_path()
 
     except Exception as e:
         print(traceback.format_exc())
         result = 'Fail'
 
+    print(time.time() - start)
     print('Done')
 
 
