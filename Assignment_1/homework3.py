@@ -1,5 +1,6 @@
 from collections import deque
 import heapq
+from queue import PriorityQueue
 import traceback
 
 
@@ -7,6 +8,7 @@ class DictKeys:
     LAST_STATE = 'last_state'
     ACTION_TAKEN_TO_REACH = 'action_taken_to_reach'
     COST_OF_LAST_STEP = 'cost_of_last_step'
+    COST_TILL_CURRENT_STEP = 'cost_till_current_path'
 
 
 class Utils:
@@ -72,18 +74,16 @@ class PathFinder:
         for action in allowed_actions:
             next_state = Utils.add_action_step(current_point, action)
             if next_state in self.action_points:
+                cost_to_reach_from_last_state = Utils.cal_euclidean_distance(current_point, next_state)
                 reachable_points_from_action[next_state] = {
                     DictKeys.LAST_STATE: current_point,
                     DictKeys.ACTION_TAKEN_TO_REACH: action,
-                    DictKeys.COST_OF_LAST_STEP: Utils.cal_euclidean_distance(current_point, next_state)
+                    DictKeys.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
+                    DictKeys.COST_TILL_CURRENT_STEP: self.adjacency_map
+                        .get(current_point, {}).get(DictKeys.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
                 }
 
         return reachable_points_from_action
-
-
-class BFSPathFinder(PathFinder):
-    def __init__(self, data):
-        super(BFSPathFinder, self).__init__(data)
 
     def backtrack_path(self):
         current_state = self.goal_location
@@ -95,6 +95,11 @@ class BFSPathFinder(PathFinder):
             cost += Utils.cal_euclidean_distance(current_state, path[-1])
             path.append(current_state)
         return path, cost
+
+
+class BFSPathFinder(PathFinder):
+    def __init__(self, data):
+        super(BFSPathFinder, self).__init__(data)
 
     def bfs(self):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
@@ -120,7 +125,7 @@ class BFSPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input1.txt'
+    input_case = 'asnlib/public/sample/input4.txt'
     try:
         path_finder = BFSPathFinder(Utils.read_file(input_case))
         path, cost = path_finder.bfs()
