@@ -4,11 +4,13 @@ from queue import PriorityQueue
 import traceback
 
 
-class DictKeys:
+class Constants:
     LAST_STATE = 'last_state'
     ACTION_TAKEN_TO_REACH = 'action_taken_to_reach'
     COST_OF_LAST_STEP = 'cost_of_last_step'
     COST_TILL_CURRENT_STEP = 'cost_till_current_path'
+    D1_dist = 10
+    D2_dist = 14
 
 
 class Utils:
@@ -76,11 +78,11 @@ class PathFinder:
             if next_state in self.action_points:
                 cost_to_reach_from_last_state = Utils.cal_euclidean_distance(current_point, next_state)
                 reachable_points_from_action[next_state] = {
-                    DictKeys.LAST_STATE: current_point,
-                    DictKeys.ACTION_TAKEN_TO_REACH: action,
-                    DictKeys.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
-                    DictKeys.COST_TILL_CURRENT_STEP: self.adjacency_map
-                        .get(current_point, {}).get(DictKeys.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
+                    Constants.LAST_STATE: current_point,
+                    Constants.ACTION_TAKEN_TO_REACH: action,
+                    Constants.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
+                    Constants.COST_TILL_CURRENT_STEP: self.adjacency_map
+                        .get(current_point, {}).get(Constants.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
                 }
 
         return reachable_points_from_action
@@ -91,7 +93,7 @@ class PathFinder:
         path.append(self.goal_location)
         cost = 0
         while current_state != self.entrance_location:
-            current_state = self.adjacency_map.get(current_state, {}).get(DictKeys.LAST_STATE)
+            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE)
             cost += Utils.cal_euclidean_distance(current_state, path[-1])
             path.append(current_state)
         return path, cost
