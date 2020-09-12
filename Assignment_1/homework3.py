@@ -14,28 +14,6 @@ class Constants:
 
 
 class Utils:
-
-    actions_map = {
-        1 :  (1,0,0),
-        2 :  (-1,0,0),
-        3 :  (0,1,0),
-        4 :  (0,-1,0),
-        5 :  (0,0,1),
-        6 :  (0,0,-1),
-        7 :  (1,1,0),
-        8 :  (1,-1,0),
-        9 :  (-1,1,0),
-        10 : (-1,-1,0),
-        11 : (1,0,1),
-        12 : (1,0,-1),
-        13 : (-1,0,1),
-        14 : (-1,0,-1),
-        15 : (0,1,1),
-        16 : (0,1,-1),
-        17 : (0,-1,1),
-        18 : (0,-1,-1),
-    }
-
     @staticmethod
     def read_file(input_path):
         with open(input_path) as input_file:
@@ -48,36 +26,51 @@ class Utils:
     def write_file():
         return
 
-    @staticmethod
-    def cal_euclidean_distance(point_1, point_2):
-        # return sum([(x-y)**2 for x, y in zip(list(point_1), list(point_2))])**0.5
-        return Constants.D1_dist if abs(sum(map(lambda i, j: i - j, point_1, point_2))) == 1 else Constants.D2_dist
-
-    @staticmethod
-    def add_action_step(current_point, action):
-        return tuple(map(lambda i, j: i + j, current_point, Utils.actions_map[action]))
-
 
 class PathFinder:
     def __init__(self, data):
+        self.actions_map = {
+            1 :  (1,0,0),
+            2 :  (-1,0,0),
+            3 :  (0,1,0),
+            4 :  (0,-1,0),
+            5 :  (0,0,1),
+            6 :  (0,0,-1),
+            7 :  (1,1,0),
+            8 :  (1,-1,0),
+            9 :  (-1,1,0),
+            10 : (-1,-1,0),
+            11 : (1,0,1),
+            12 : (1,0,-1),
+            13 : (-1,0,1),
+            14 : (-1,0,-1),
+            15 : (0,1,1),
+            16 : (0,1,-1),
+            17 : (0,-1,1),
+            18 : (0,-1,-1),
+        }
         self.algo = data[0]
         self.grid_dimensions = data[1]
         self.entrance_location = data[2]
         self.goal_location = data[3]
         self.num_action_points = data[4]
-        self.action_points = self.get_action_point_action_map(data[5:])
+        self.action_points_actions_map = {tuple(x[:3]): list(x[3:]) for x in data[5:]}
         self.adjacency_map = {}
         self.reached_goal = False
 
-    def get_action_point_action_map(self, action_point_action_list):
-        return {tuple(x[:3]): list(x[3:]) for x in action_point_action_list}
+    def cal_euclidean_distance(self, point_1, point_2):
+        # return sum([(x-y)**2 for x, y in zip(list(point_1), list(point_2))])**0.5
+        return Constants.D1_dist if abs(sum(map(lambda i, j: i - j, point_1, point_2))) == 1 else Constants.D2_dist
+
+    def add_action_step(self, current_point, action):
+        return tuple(map(lambda i, j: i + j, current_point, self.actions_map[action]))
 
     def find_reachable_points(self, current_point, allowed_actions):
         reachable_points_from_action = {}
         for action in allowed_actions:
-            next_state = Utils.add_action_step(current_point, action)
-            if next_state in self.action_points:
-                cost_to_reach_from_last_state = Utils.cal_euclidean_distance(current_point, next_state)
+            next_state = self.add_action_step(current_point, action)
+            if next_state in self.action_points_actions_map:
+                cost_to_reach_from_last_state = self.cal_euclidean_distance(current_point, next_state)
                 reachable_points_from_action[next_state] = {
                     Constants.LAST_STATE: current_point,
                     Constants.ACTION_TAKEN_TO_REACH: action,
@@ -95,7 +88,7 @@ class PathFinder:
         cost = 0
         while current_state != self.entrance_location:
             current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE)
-            cost += Utils.cal_euclidean_distance(current_state, path[-1])
+            cost += self.cal_euclidean_distance(current_state, path[-1])
             path.append(current_state)
         return path, cost
 
@@ -108,7 +101,7 @@ class BFSPathFinder(PathFinder):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
         while bfs_queue:
             current_state = bfs_queue.popleft()
-            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
+            reachable_states = self.find_reachable_points(current_state, self.action_points_actions_map.get(current_state, []))
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
@@ -137,7 +130,7 @@ class UCSPathFinder(PathFinder):
 
         while ucs_queue:
             current_state = ucs_queue.get()[1]
-            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
+            reachable_states = self.find_reachable_points(current_state, self.action_points_actions_map.get(current_state, []))
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
@@ -170,7 +163,7 @@ class AStarPathFinder(PathFinder):
 
         while a_star_queue:
             current_state = a_star_queue.get()[1]
-            reachable_states = self.find_reachable_points(current_state, self.action_points.get(current_state, []))
+            reachable_states = self.find_reachable_points(current_state, self.action_points_actions_map.get(current_state, []))
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
@@ -207,5 +200,3 @@ if __name__ == '__main__':
 
     print(time.time() - start)
     print('Done')
-
-
