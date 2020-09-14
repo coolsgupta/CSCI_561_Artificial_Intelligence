@@ -55,7 +55,14 @@ class PathFinder:
         self.goal_location = data[3]
         self.num_action_points = data[4]
         self.action_points_actions_map = {tuple(x[:3]): list(x[3:]) for x in data[5:]}
-        self.adjacency_map = {}
+        self.adjacency_map = {
+            self.entrance_location: {
+                Constants.LAST_STATE: (-1, -1, -1),
+                Constants.ACTION_TAKEN_TO_REACH: -1,
+                Constants.COST_OF_LAST_STEP: 0,
+                Constants.COST_TILL_CURRENT_STEP: 0
+            }
+        }
         self.reached_goal = False
 
     def cal_euclidean_distance(self, point_1, point_2):
