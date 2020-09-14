@@ -23,8 +23,13 @@ class Utils:
         return data
 
     @staticmethod
-    def write_file():
-        return
+    def write_file(path, cost, results_file_name):
+        results = [str(cost), str(len(path))]
+        # path.reverse()
+        for i in range(len(path)-1, -1, -1):
+            results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
+        with open(results_file_name, 'w') as result_file:
+            result_file.write('\n'.join(results))
 
 
 class PathFinder:
@@ -92,19 +97,39 @@ class PathFinder:
     def backtrack_path(self):
         current_state = self.goal_location
         traced_path = deque()
-        traced_path.append(self.goal_location)
-        traced_path_cost = 0
-        while current_state != self.entrance_location:
-            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE)
-            traced_path_cost += self.cal_euclidean_distance(current_state, traced_path[-1])
-            traced_path.append(current_state)
+        traced_path.append(
+            (self.goal_location, self.adjacency_map.get(self.goal_location, {}).get(Constants.COST_OF_LAST_STEP, 0))
+        )
 
-        return traced_path, traced_path_cost
+        while current_state != self.entrance_location:
+            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE, 0)
+            cost_to_reach = self.adjacency_map.get(current_state, {}).get(Constants.COST_OF_LAST_STEP, 0)
+            traced_path.append((current_state, cost_to_reach))
+
+        return traced_path, self.adjacency_map.get(self.goal_location, {}).get(Constants.COST_TILL_CURRENT_STEP, 0)
 
 
 class BFSPathFinder(PathFinder):
     def __init__(self, data):
         super(BFSPathFinder, self).__init__(data)
+
+    def find_reachable_points(self, current_point, allowed_actions):
+        reachable_points_from_action = {}
+        for action in allowed_actions:
+            next_state = self.add_action_step(current_point, action)
+
+            if next_state in self.action_points_actions_map:
+                cost_to_reach_from_last_state = 1
+                reachable_points_from_action[next_state] = {
+                    Constants.LAST_STATE: current_point,
+                    Constants.ACTION_TAKEN_TO_REACH: action,
+                    Constants.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
+                    Constants.COST_TILL_CURRENT_STEP: self.adjacency_map
+                        .get(current_point, {}).get(Constants.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
+                }
+
+        return reachable_points_from_action
+
 
     def find_path(self):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
@@ -209,11 +234,13 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input7.txt'
+    input_case = 'asnlib/public/sample/input1.txt'
+    output_file = input_case.split('/')[-1].replace('input', 'output')
     start = time.time()
     try:
-        path_finder = AStarPathFinder(Utils.read_file(input_case))
+        path_finder = BFSPathFinder(Utils.read_file(input_case))
         path, cost = path_finder.find_path()
+        Utils.write_file(path, cost, output_file)
 
     except Exception as e:
         print(traceback.format_exc())
