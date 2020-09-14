@@ -165,7 +165,7 @@ class AStarPathFinder(PathFinder):
 
     def heuristic_function(self, state):
         del_dist = sorted(list(map(lambda i, j: abs(i - j), state, self.goal_location)))
-        return 10*(1.4*del_dist[0] + 1.4*(del_dist[1] - del_dist[0]) + (del_dist[2]-del_dist[1]))
+        return del_dist[0] + del_dist[2] + 1.4*del_dist[1]
 
     def find_path(self):
         visited, a_star_queue = {self.entrance_location}, PriorityQueue()
