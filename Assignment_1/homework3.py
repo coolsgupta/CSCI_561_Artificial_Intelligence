@@ -261,7 +261,7 @@ if __name__ == '__main__':
     except Exception as e:
         print(traceback.format_exc())
         result = 'Fail'
-        Utils.write_file([], 'Fail', output_file)
+        Utils.write_file([], 'FAIL', output_file)
 
     print(time.time() - start)
     print('Done')
