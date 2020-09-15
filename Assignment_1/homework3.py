@@ -24,12 +24,25 @@ class Utils:
 
     @staticmethod
     def write_file(path, cost, results_file_name):
-        results = [str(cost), str(len(path))]
-        # path.reverse()
+        results = [str(cost)]
+        if len(path):
+            results.append(str(len(path)))
+
         for i in range(len(path)-1, -1, -1):
             results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
         with open(results_file_name, 'w') as result_file:
             result_file.write('\n'.join(results))
+
+    @staticmethod
+    def get_path_finder(data):
+        if data[0] == 'BFS':
+            return BFSPathFinder(data)
+
+        if data[0] == 'UCS':
+            return UCSPathFinder(data)
+
+        if data[0] == 'A*':
+            return AStarPathFinder(data)
 
 
 class PathFinder:
@@ -69,6 +82,9 @@ class PathFinder:
             }
         }
         self.reached_goal = False
+
+    def get_algo(self):
+        return self.algo
 
     def cal_euclidean_distance(self, point_1, point_2):
         # return sum([(x-y)**2 for x, y in zip(list(point_1), list(point_2))])**0.5
@@ -234,17 +250,18 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input1.txt'
+    input_case = 'asnlib/public/sample/input8.txt'
     output_file = input_case.split('/')[-1].replace('input', 'output')
     start = time.time()
     try:
-        path_finder = BFSPathFinder(Utils.read_file(input_case))
+        path_finder = Utils.get_path_finder(Utils.read_file(input_case))
         path, cost = path_finder.find_path()
         Utils.write_file(path, cost, output_file)
 
     except Exception as e:
         print(traceback.format_exc())
         result = 'Fail'
+        Utils.write_file([], 'Fail', output_file)
 
     print(time.time() - start)
     print('Done')
