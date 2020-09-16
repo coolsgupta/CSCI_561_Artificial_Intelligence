@@ -25,11 +25,12 @@ class Utils:
     @staticmethod
     def write_file(path, cost, results_file_name):
         results = [str(cost)]
-        if len(path):
+        if path:
             results.append(str(len(path)))
+        else:
+            for i in range(len(path) - 1, -1, -1):
+                results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
 
-        for i in range(len(path)-1, -1, -1):
-            results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
         with open(results_file_name, 'w') as result_file:
             result_file.write('\n'.join(results))
 
@@ -250,7 +251,7 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input8.txt'
+    input_case = 'asnlib/public/sample/input13.txt'
     output_file = input_case.split('/')[-1].replace('input', 'output')
     start = time.time()
     try:
