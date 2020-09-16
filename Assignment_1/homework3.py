@@ -27,7 +27,6 @@ class Utils:
         results = [str(cost)]
         if path:
             results.append(str(len(path)))
-        else:
             for i in range(len(path) - 1, -1, -1):
                 results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
 
