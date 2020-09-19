@@ -146,7 +146,6 @@ class BFSPathFinder(PathFinder):
 
         return reachable_points_from_action
 
-
     def find_path(self):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
         while bfs_queue:
@@ -260,7 +259,6 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(traceback.format_exc())
-        result = 'Fail'
         Utils.write_file([], 'FAIL', output_file)
 
     print(time.time() - start)
