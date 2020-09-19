@@ -118,7 +118,7 @@ class PathFinder:
         )
 
         while current_state != self.entrance_location:
-            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE, 0)
+            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE, (-1, -1, -1))
             cost_to_reach = self.adjacency_map.get(current_state, {}).get(Constants.COST_OF_LAST_STEP, 0)
             traced_path.append((current_state, cost_to_reach))
 
