@@ -25,11 +25,11 @@ class Utils:
     @staticmethod
     def write_file(path, cost, results_file_name):
         results = [str(cost)]
-        if len(path):
+        if path:
             results.append(str(len(path)))
+            for i in range(len(path) - 1, -1, -1):
+                results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
 
-        for i in range(len(path)-1, -1, -1):
-            results.append('{} {}'.format(' '.join(map(str, path[i][0])), str(path[i][1])))
         with open(results_file_name, 'w') as result_file:
             result_file.write('\n'.join(results))
 
@@ -118,7 +118,7 @@ class PathFinder:
         )
 
         while current_state != self.entrance_location:
-            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE, 0)
+            current_state = self.adjacency_map.get(current_state, {}).get(Constants.LAST_STATE, (-1, -1, -1))
             cost_to_reach = self.adjacency_map.get(current_state, {}).get(Constants.COST_OF_LAST_STEP, 0)
             traced_path.append((current_state, cost_to_reach))
 
@@ -145,7 +145,6 @@ class BFSPathFinder(PathFinder):
                 }
 
         return reachable_points_from_action
-
 
     def find_path(self):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
@@ -250,7 +249,7 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input8.txt'
+    input_case = 'asnlib/public/sample/input13.txt'
     output_file = input_case.split('/')[-1].replace('input', 'output')
     start = time.time()
     try:
@@ -260,8 +259,7 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(traceback.format_exc())
-        result = 'Fail'
-        Utils.write_file([], 'Fail', output_file)
+        Utils.write_file([], 'FAIL', output_file)
 
     print(time.time() - start)
     print('Done')
