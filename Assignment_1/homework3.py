@@ -98,15 +98,15 @@ class PathFinder:
         for action in allowed_actions:
             next_state = self.add_action_step(current_point, action)
 
-            if next_state in self.action_points_actions_map:
-                cost_to_reach_from_last_state = self.cal_euclidean_distance(current_point, next_state)
-                reachable_points_from_action[next_state] = {
-                    Constants.LAST_STATE: current_point,
-                    Constants.ACTION_TAKEN_TO_REACH: action,
-                    Constants.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
-                    Constants.COST_TILL_CURRENT_STEP: self.adjacency_map
-                        .get(current_point, {}).get(Constants.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
-                }
+            # if next_state in self.action_points_actions_map:
+            cost_to_reach_from_last_state = self.cal_euclidean_distance(current_point, next_state)
+            reachable_points_from_action[next_state] = {
+                Constants.LAST_STATE: current_point,
+                Constants.ACTION_TAKEN_TO_REACH: action,
+                Constants.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
+                Constants.COST_TILL_CURRENT_STEP: self.adjacency_map
+                    .get(current_point, {}).get(Constants.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
+            }
 
         return reachable_points_from_action
 
@@ -134,15 +134,15 @@ class BFSPathFinder(PathFinder):
         for action in allowed_actions:
             next_state = self.add_action_step(current_point, action)
 
-            if next_state in self.action_points_actions_map:
-                cost_to_reach_from_last_state = 1
-                reachable_points_from_action[next_state] = {
-                    Constants.LAST_STATE: current_point,
-                    Constants.ACTION_TAKEN_TO_REACH: action,
-                    Constants.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
-                    Constants.COST_TILL_CURRENT_STEP: self.adjacency_map
-                        .get(current_point, {}).get(Constants.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
-                }
+            # if next_state in self.action_points_actions_map:
+            cost_to_reach_from_last_state = 1
+            reachable_points_from_action[next_state] = {
+                Constants.LAST_STATE: current_point,
+                Constants.ACTION_TAKEN_TO_REACH: action,
+                Constants.COST_OF_LAST_STEP: cost_to_reach_from_last_state,
+                Constants.COST_TILL_CURRENT_STEP: self.adjacency_map
+                    .get(current_point, {}).get(Constants.COST_TILL_CURRENT_STEP, 0) + cost_to_reach_from_last_state
+            }
 
         return reachable_points_from_action
 
@@ -158,6 +158,9 @@ class BFSPathFinder(PathFinder):
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
+
+            if current_state not in self.action_points_actions_map:
+                continue
 
             for state in reachable_states:
                 if state not in visited:
@@ -191,6 +194,9 @@ class UCSPathFinder(PathFinder):
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
+
+            if current_state not in self.action_points_actions_map:
+                continue
 
             for state in reachable_states:
                 if state not in visited:
@@ -228,6 +234,9 @@ class AStarPathFinder(PathFinder):
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
+
+            if current_state not in self.action_points_actions_map:
+                continue
 
             for state in reachable_states:
                 if state not in visited:
