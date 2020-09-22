@@ -91,7 +91,7 @@ class PathFinder:
         return Constants.D1_dist if abs(sum(map(lambda i, j: i - j, point_1, point_2))) == 1 else Constants.D2_dist
 
     def add_action_step(self, current_point, action):
-        return tuple(map(lambda i, j: i + j, current_point, self.ACTIONS_MAP[action]))
+        return tuple(map(lambda i, j: i + j, current_point, self.ACTIONS_MAP.get(action, (0, 0, 0))))
 
     def find_reachable_points(self, current_point, allowed_actions):
         reachable_points_from_action = {}
