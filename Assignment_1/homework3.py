@@ -182,12 +182,11 @@ class UCSPathFinder(PathFinder):
         visited, ucs_queue = {self.entrance_location}, PriorityQueue()
         ucs_queue.put((0, self.entrance_location))
 
-        while ucs_queue:
+        while not ucs_queue.empty():
             current_state = ucs_queue.get()[1]
 
             if current_state == self.goal_location:
                 self.reached_goal = True
-                break
 
             reachable_states = self.find_reachable_points(
                 current_state,
@@ -195,10 +194,10 @@ class UCSPathFinder(PathFinder):
             )
 
             for state in reachable_states:
-                if state not in visited:
+                if state not in visited or self.adjacency_map[state][Constants.COST_TILL_CURRENT_STEP] > reachable_states[state][Constants.COST_TILL_CURRENT_STEP]:
                     visited.add(state)
-                    ucs_queue.put((reachable_states[state][Constants.COST_TILL_CURRENT_STEP], state))
                     self.adjacency_map[state] = reachable_states[state]
+                    ucs_queue.put((reachable_states[state][Constants.COST_TILL_CURRENT_STEP], state))
 
         if self.reached_goal:
             traced_path, traced_path_cost = self.backtrack_path()
