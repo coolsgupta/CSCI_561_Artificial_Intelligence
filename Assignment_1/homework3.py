@@ -150,14 +150,15 @@ class BFSPathFinder(PathFinder):
         visited, bfs_queue = {self.entrance_location}, deque([self.entrance_location])
         while bfs_queue:
             current_state = bfs_queue.popleft()
-            reachable_states = self.find_reachable_points(
-                current_state,
-                self.action_points_actions_map.get(current_state, [])
-            )
 
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
+
+            reachable_states = self.find_reachable_points(
+                current_state,
+                self.action_points_actions_map.get(current_state, [])
+            )
 
             for state in reachable_states:
                 if state not in visited:
@@ -183,14 +184,15 @@ class UCSPathFinder(PathFinder):
 
         while ucs_queue:
             current_state = ucs_queue.get()[1]
-            reachable_states = self.find_reachable_points(
-                current_state,
-                self.action_points_actions_map.get(current_state, [])
-            )
 
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
+
+            reachable_states = self.find_reachable_points(
+                current_state,
+                self.action_points_actions_map.get(current_state, [])
+            )
 
             for state in reachable_states:
                 if state not in visited:
@@ -220,14 +222,15 @@ class AStarPathFinder(PathFinder):
 
         while a_star_queue:
             current_state = a_star_queue.get()[1]
-            reachable_states = self.find_reachable_points(
-                current_state,
-                self.action_points_actions_map.get(current_state, [])
-            )
 
             if current_state == self.goal_location:
                 self.reached_goal = True
                 break
+
+            reachable_states = self.find_reachable_points(
+                current_state,
+                self.action_points_actions_map.get(current_state, [])
+            )
 
             for state in reachable_states:
                 if state not in visited:
@@ -249,7 +252,7 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input13.txt'
+    input_case = 'asnlib/public/sample/input1.txt'
     output_file = input_case.split('/')[-1].replace('input', 'output')
     start = time.time()
     try:
