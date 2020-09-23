@@ -187,6 +187,7 @@ class UCSPathFinder(PathFinder):
 
             if current_state == self.goal_location:
                 self.reached_goal = True
+                break
 
             reachable_states = self.find_reachable_points(
                 current_state,
@@ -232,15 +233,15 @@ class AStarPathFinder(PathFinder):
             )
 
             for state in reachable_states:
-                if state not in visited:
+                if state not in visited or self.adjacency_map[state][Constants.COST_TILL_CURRENT_STEP] > reachable_states[state][Constants.COST_TILL_CURRENT_STEP]:
                     visited.add(state)
+                    self.adjacency_map[state] = reachable_states[state]
                     a_star_queue.put(
                         (
                             reachable_states[state][Constants.COST_TILL_CURRENT_STEP] + self.heuristic_function(state),
                             state
                         )
                     )
-                    self.adjacency_map[state] = reachable_states[state]
 
         if self.reached_goal:
             traced_path, traced_path_cost = self.backtrack_path()
@@ -251,9 +252,9 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    for i in range(4, 5):
+    for i in range(1, 29):
         input_case = 'asnlib/public/sample/input{}.txt'.format(str(i))
-        output_file = 'asnlib/public/Calc_Outputs/' + input_case.split('/')[-1].replace('input', 'output')
+        output_file = 'asnlib/public/Calc_Outputs_2/' + input_case.split('/')[-1].replace('input', 'output')
         start = time.time()
         try:
             path_finder = Utils.get_path_finder(Utils.read_file(input_case))
