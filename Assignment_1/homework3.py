@@ -252,17 +252,18 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    input_case = 'asnlib/public/sample/input1.txt'
-    output_file = input_case.split('/')[-1].replace('input', 'output')
-    start = time.time()
-    try:
-        path_finder = Utils.get_path_finder(Utils.read_file(input_case))
-        path, cost = path_finder.find_path()
-        Utils.write_file(path, cost, output_file)
+    for i in range(25, 26):
+        input_case = 'asnlib/public/sample/input{}.txt'.format(str(i))
+        output_file = 'asnlib/public/Calc_Outputs/' + input_case.split('/')[-1].replace('input', 'output')
+        start = time.time()
+        try:
+            path_finder = Utils.get_path_finder(Utils.read_file(input_case))
+            path, cost = path_finder.find_path()
+            Utils.write_file(path, cost, output_file)
 
-    except Exception as e:
-        print(traceback.format_exc())
-        Utils.write_file([], 'FAIL', output_file)
+        except Exception as e:
+            print(traceback.format_exc())
+            Utils.write_file([], 'FAIL', output_file)
 
-    print(time.time() - start)
+        print(time.time() - start)
     print('Done')
