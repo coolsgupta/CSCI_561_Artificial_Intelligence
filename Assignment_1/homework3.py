@@ -219,7 +219,7 @@ class AStarPathFinder(PathFinder):
         visited, a_star_queue = {self.entrance_location}, PriorityQueue()
         a_star_queue.put((0, self.entrance_location))
 
-        while a_star_queue:
+        while not a_star_queue.empty():
             current_state = a_star_queue.get()[1]
 
             if current_state == self.goal_location:
@@ -251,7 +251,7 @@ class AStarPathFinder(PathFinder):
 
 
 if __name__ == '__main__':
-    for i in range(25, 26):
+    for i in range(4, 5):
         input_case = 'asnlib/public/sample/input{}.txt'.format(str(i))
         output_file = 'asnlib/public/Calc_Outputs/' + input_case.split('/')[-1].replace('input', 'output')
         start = time.time()
