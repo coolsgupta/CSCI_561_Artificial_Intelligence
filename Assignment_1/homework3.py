@@ -1,6 +1,6 @@
 from collections import deque
 from queue import PriorityQueue
-import traceback
+#import traceback
 #import time
 
 
@@ -182,7 +182,7 @@ class UCSPathFinder(PathFinder):
         visited, ucs_queue = {self.entrance_location}, PriorityQueue()
         ucs_queue.put((0, self.entrance_location))
 
-        while ucs_queue:
+        while not ucs_queue.empty():
             current_state = ucs_queue.get()[1]
 
             if current_state == self.goal_location:
@@ -195,10 +195,10 @@ class UCSPathFinder(PathFinder):
             )
 
             for state in reachable_states:
-                if state not in visited:
+                if state not in visited or self.adjacency_map[state][Constants.COST_TILL_CURRENT_STEP] > reachable_states[state][Constants.COST_TILL_CURRENT_STEP]:
                     visited.add(state)
-                    ucs_queue.put((reachable_states[state][Constants.COST_TILL_CURRENT_STEP], state))
                     self.adjacency_map[state] = reachable_states[state]
+                    ucs_queue.put((reachable_states[state][Constants.COST_TILL_CURRENT_STEP], state))
 
         if self.reached_goal:
             traced_path, traced_path_cost = self.backtrack_path()
@@ -220,7 +220,7 @@ class AStarPathFinder(PathFinder):
         visited, a_star_queue = {self.entrance_location}, PriorityQueue()
         a_star_queue.put((0, self.entrance_location))
 
-        while a_star_queue:
+        while not a_star_queue.empty():
             current_state = a_star_queue.get()[1]
 
             if current_state == self.goal_location:
@@ -233,15 +233,15 @@ class AStarPathFinder(PathFinder):
             )
 
             for state in reachable_states:
-                if state not in visited:
+                if state not in visited or self.adjacency_map[state][Constants.COST_TILL_CURRENT_STEP] > reachable_states[state][Constants.COST_TILL_CURRENT_STEP]:
                     visited.add(state)
+                    self.adjacency_map[state] = reachable_states[state]
                     a_star_queue.put(
                         (
                             reachable_states[state][Constants.COST_TILL_CURRENT_STEP] + self.heuristic_function(state),
                             state
                         )
                     )
-                    self.adjacency_map[state] = reachable_states[state]
 
         if self.reached_goal:
             traced_path, traced_path_cost = self.backtrack_path()
