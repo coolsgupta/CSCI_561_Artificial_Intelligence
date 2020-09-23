@@ -72,7 +72,7 @@ class PathFinder:
         self.entrance_location = data[2]
         self.goal_location = data[3]
         self.num_action_points = data[4]
-        self.action_points_actions_map = {tuple(x[:3]): list(x[3:]) for x in data[5:]}
+        self.action_points_actions_map = {tuple(x[:3]): list(x[3:]) for x in data[5:5+self.num_action_points[0]]}
         self.adjacency_map = {
             self.entrance_location: {
                 Constants.LAST_STATE: (-1, -1, -1),
