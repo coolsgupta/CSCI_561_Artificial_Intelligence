@@ -95,13 +95,18 @@ def get_neigh_liberty_positions(i, j, board):
 
 
 def try_move(i, j, board, player):
-    board[i][j] = player
-    new_board = deepcopy(board)
-    died_pieces = find_died_pieces(3 - player, board)
-    for piece in died_pieces:
-        new_board[piece[0]][piece[1]] = 0
+    new_board = board
 
-    return new_board, len(died_pieces), board
+    new_board[i][j] = player
+    # print("check in try",endangeredLiberties(new_board,player))
+    died_pieces = find_died_pieces(3 - player, new_board)
+
+    if len(died_pieces) == 0:
+        return new_board, len(died_pieces), new_board
+    else:
+        next_board = remove_died_pieces(died_pieces, new_board)
+
+        return next_board, len(died_pieces), new_board
 
 
 def valid_moves(player, previous_board, new_board):
