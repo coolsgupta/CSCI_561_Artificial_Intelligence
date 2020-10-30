@@ -107,44 +107,27 @@ def try_move(i, j, board, player):
 def valid_moves(player, previous_board, new_board):
     moves = []
     imp_moves = []
-    counter = 1
-    trial = 0
-    self_end_1 = []
-    safe_moves_important = []
-    self_end_2 = set()
-    oppo_end_2 = set()
-
-    all_liberties_vala_move = set()
+    all_liberty_moves = set()
 
     for i in range(0, 5):
         for j in range(0, 5):
-            # print(player)
             if new_board[i][j] == player:
-                # print(i,j)
                 self_end = get_liberty_positions(i, j, new_board, player)
-                # print("yahi hai khatarnak",self_end)
                 if len(self_end) == 1:
-                    all_liberties_vala_move = all_liberties_vala_move | set(self_end)
+                    all_liberty_moves = all_liberty_moves | set(self_end)
                     if i == 0 or i == 4 or j == 0 or j == 4:
-                        safe_positions = get_neigh_liberty_positions(self_end[0][0], self_end[0][1], new_board, player)
+                        safe_positions = get_neigh_liberty_positions(self_end[0][0], self_end[0][1], new_board)
                         if safe_positions:
-                            all_liberties_vala_move = all_liberties_vala_move | set(safe_positions)
-                        # all_liberties_vala_move.add(set(safe_positions))
-                    # print("kaise",all_liberties_vala_move_1)
-                    # return list(all_liberties_vala_move_1)
+                            all_liberty_moves = all_liberty_moves | set(safe_positions)
 
             elif new_board[i][j] == 3 - player:
                 oppo_end = get_liberty_positions(i, j, new_board, 3 - player)
-                # print("oopo",i,j,oppo_end)
-                all_liberties_vala_move = all_liberties_vala_move | set(oppo_end)
+                all_liberty_moves = all_liberty_moves | set(oppo_end)
 
-    if len(list(all_liberties_vala_move)):
-        # print("yaar")
-        for x in list(all_liberties_vala_move):
+    if len(list(all_liberty_moves)):
+        for x in list(all_liberty_moves):
             tri_board = deepcopy(new_board)
             board_after_move, died_pieces, _ = try_move(x[0], x[1], tri_board, player)
-            # print(x[0],x[1],died_pieces)
-            # print("condition 4",have_liberty(i, j, board_after_move, player))
             if have_liberty(x[0], x[1], board_after_move,
                             player) and board_after_move != new_board and board_after_move != previous_board:
                 imp_moves.append((x[0], x[1], died_pieces))
@@ -153,17 +136,11 @@ def valid_moves(player, previous_board, new_board):
 
     for i in range(0, 5):
         for j in range(0, 5):
-
             if new_board[i][j] == 0:
-
                 trial_board = deepcopy(new_board)
                 board_after_move, died_pieces, _ = try_move(i, j, trial_board, player)
-                # print("condition 4",have_liberty(i, j, board_after_move, player))
                 if have_liberty(i, j, board_after_move,
                                 player) and board_after_move != new_board and board_after_move != previous_board:
-                    # print("check in vm",endangeredLiberties(board_after_move,player))
-
-                    # print("idhar")
                     moves.append((i, j, died_pieces))
 
     return sorted(moves, key=lambda x: x[2], reverse=True)
