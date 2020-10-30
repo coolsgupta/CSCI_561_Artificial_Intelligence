@@ -41,11 +41,11 @@ def get_all_ally_positions(i, j, board, player):
     while stack:
         piece = stack.pop()
         all_allies.add(piece)
-        visited.add(piece)
         neighbor_allies = find_neighbour_allies(piece[0], piece[1], board, player)
         for neigh in neighbor_allies:
             if neigh not in visited and neigh not in all_allies:
                 stack.append(neigh)
+                visited.add(piece)
 
     return list(all_allies)
 
