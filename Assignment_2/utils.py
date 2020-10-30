@@ -63,8 +63,8 @@ class GameHost:
 
     def find_died_pieces(self, board, player):
         died_pieces = []
-        for i in range(0, self.board_size):
-            for j in range(0, self.board_size):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
                 if board[i][j] == player and not self.have_liberty((i, j), board, player):
                     died_pieces.append((i, j))
 
@@ -100,8 +100,8 @@ class GameHost:
         imp_moves = []
         all_liberty_moves = set()
 
-        for i in range(0, self.board_size):
-            for j in range(0, self.board_size):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
                 if new_board[i][j] == player:
                     self_end = self.get_liberty_positions((i, j), new_board, player)
                     if len(self_end) == 1:
@@ -126,8 +126,8 @@ class GameHost:
         if len(imp_moves) != 0:
             return sorted(imp_moves, key=lambda x: x[2], reverse=True)
 
-        for i in range(0, self.board_size):
-            for j in range(0, self.board_size):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
 
                 if new_board[i][j] == 0:
 
