@@ -32,18 +32,18 @@ class GameHost:
         neighbours = [(position[0] + del_x, position[1] + del_y) for del_x, del_y in self.neighbour_relative_coordinates]
         return [neigh for neigh in neighbours if self.on_board(neigh)]
 
-    def find_neighbour_allies(self, position):
+    def find_neighbour_allies(self, position, board, player):
         neighbours = self.find_on_board_neighbours(position)
-        return [neigh for neigh in neighbours if self.current_board[neigh[0]][neigh[1]] == self.current_player]
+        return [neigh for neigh in neighbours if board[neigh[0]][neigh[1]] == player]
 
-    def get_all_ally_positions(self, position):
+    def get_all_ally_positions(self, position, board, player):
         allies = set()
         if self.on_board(position):
             queue = [position]
             visited = set()
             allies.add(position)
             while queue:
-                ally_neighbours = self.find_neighbour_allies(queue.pop())
+                ally_neighbours = self.find_neighbour_allies(queue.pop(), board, player)
                 for neigh in ally_neighbours:
                     if neigh not in visited:
                         visited.add(neigh)
@@ -52,24 +52,24 @@ class GameHost:
 
         return list(allies)
 
-    def have_liberty(self, position):
-        all_allies = self.get_all_ally_positions(position)
+    def have_liberty(self, position, board, player):
+        all_allies = self.get_all_ally_positions(position, board, player)
         for member in all_allies:
             neighbors = self.find_on_board_neighbours(member)
             for piece in neighbors:
-                if self.current_board[piece[0]][piece[1]] == 0:
+                if board[piece[0]][piece[1]] == 0:
                     return True
 
         return False
 
-    def find_died_pieces(self, player):
+    def find_died_pieces(self, board, player):
         died_pieces = []
 
         for i in range(0, self.board_size):
             for j in range(0, self.board_size):
-                if self.current_board[i][j] == player:
+                if board[i][j] == player:
 
-                    if not self.have_liberty((i, j)):
+                    if not self.have_liberty((i, j), board, player):
                         died_pieces.append((i, j))
 
         return died_pieces
@@ -79,32 +79,84 @@ class GameHost:
         for piece in dead_pieces:
             self.current_board[piece[0]][piece[1]] = 0
 
-    def get_liberty_positions(self, position):
+    def get_liberty_positions(self, position, board, player):
         available_positions = set()
         # all_allies = self.get_all_ally_positions(position)
-        for member in self.get_all_ally_positions(position):
+        for member in self.get_all_ally_positions(position, board, player):
             neighbors = self.find_on_board_neighbours(member)
-            available_positions.update([neigh for neigh in neighbors if self.current_board[neigh[0]][neigh[1]] == 0])
+            available_positions.update([neigh for neigh in neighbors if board[neigh[0]][neigh[1]] == 0])
 
         return list(available_positions)
 
-    def get_neigh_liberty_positions(self, position):
+    def get_neigh_liberty_positions(self, position, board):
         available_positions = set()
         available_positions.update(
-            [neigh for neigh in self.find_on_board_neighbours(position) if self.current_board[neigh[0]][neigh[1]] == 0]
+            [neigh for neigh in self.find_on_board_neighbours(position) if board[neigh[0]][neigh[1]] == 0]
         )
         return list(available_positions)
 
-    def try_move(self, position):
-        self.current_board[position[0]][position[1]] = self.current_player
-        new_board = deepcopy(self.current_board)
-        died_pieces = self.find_died_pieces(3 - self.current_player)
+    def try_move(self, position, board, player):
+        board[position[0]][position[1]] = player
+        new_board = deepcopy(board)
+        died_pieces = self.find_died_pieces(board, 3 - player)
         for piece in died_pieces:
-            self.current_board[piece[0]][piece[1]] = 0
+            new_board[piece[0]][piece[1]] = 0
 
-        return self.current_board, len(died_pieces), new_board
+        return board, len(died_pieces), new_board
 
+    def valid_moves(self, player, previous_board, new_board):
+        moves = []
+        imp_moves = []
+        all_liberties_vala_move = set()
 
+        for i in range(0, 5):
+            for j in range(0, 5):
+                # print(player)
+                if new_board[i][j] == player:
+                    # print(i,j)
+                    self_end = self.get_liberty_positions((i, j), new_board, player)
+                    # print("yahi hai khatarnak",self_end)
+                    if len(self_end) == 1:
+                        all_liberties_vala_move = all_liberties_vala_move | set(self_end)
+                        if i == 0 or i == 4 or j == 0 or j == 4:
+                            safe_positions = self.get_neigh_liberty_positions(
+                                (self_end[0][0], self_end[0][1]), new_board
+                            )
+                            if safe_positions:
+                                all_liberties_vala_move = all_liberties_vala_move | set(safe_positions)
+                            # all_liberties_vala_move.add(set(safe_positions))
+                        # print("kaise",all_liberties_vala_move_1)
+                        # return list(all_liberties_vala_move_1)
+
+                elif new_board[i][j] == 3 - player:
+                    oppo_end = self.get_liberty_positions((i, j), new_board, 3 - player)
+                    all_liberties_vala_move = all_liberties_vala_move | set(oppo_end)
+
+        if len(list(all_liberties_vala_move)):
+            for x in list(all_liberties_vala_move):
+                tri_board = deepcopy(new_board)
+                board_after_move, died_pieces, _ = self.try_move((x[0], x[1]), tri_board, player)
+                if self.have_liberty((x[0], x[1]), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
+                    imp_moves.append((x[0], x[1], died_pieces))
+
+            if len(imp_moves) != 0:
+                return sorted(imp_moves, key=lambda x: x[2], reverse=True)
+
+        for i in range(0, 5):
+            for j in range(0, 5):
+
+                if new_board[i][j] == 0:
+
+                    trial_board = deepcopy(new_board)
+                    board_after_move, died_pieces, _ = self.try_move((i, j), trial_board, player)
+                    # print("condition 4",have_liberty(i, j, board_after_move, player))
+                    if self.have_liberty((i, j), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
+                        # print("check in vm",endangeredLiberties(board_after_move,player))
+
+                        # print("idhar")
+                        moves.append((i, j, died_pieces))
+
+        return sorted(moves, key=lambda x: x[2], reverse=True)
 
 
 
