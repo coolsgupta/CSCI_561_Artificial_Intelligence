@@ -43,11 +43,11 @@ class GameHost:
         while stack:
             piece = stack.pop()
             all_allies.add(piece)
-            visited.add(piece)
             neighbor_allies = self.find_neighbour_allies(piece, board, player)
             for neigh in neighbor_allies:
                 if neigh not in visited and neigh not in all_allies:
                     stack.append(neigh)
+                    visited.add(piece)
 
         return list(all_allies)
 
@@ -104,8 +104,8 @@ class GameHost:
 
     def try_move(self, position, board, player):
         board[position[0]][position[1]] = player
-        new_board = deepcopy(board)
         died_pieces = self.find_died_pieces(board, 3 - player)
+        new_board = board
         for piece in died_pieces:
             new_board[piece[0]][piece[1]] = 0
 
