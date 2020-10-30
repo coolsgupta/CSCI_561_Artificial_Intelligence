@@ -18,8 +18,8 @@ class Agent:
         num_white_pieces = 0
         black_endangered_liberty = 0
         white_endangered_liberty = 0
-        for i in range(0, self.board_size):
-            for j in range(0, self.board_size):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
                 if board[i][j] == 1:
                     lib = self.game_host.get_liberty_positions((i, j), board, 1)
                     if len(lib) <= 1:
