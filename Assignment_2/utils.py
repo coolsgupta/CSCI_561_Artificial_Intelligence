@@ -95,9 +95,9 @@ class GameHost:
         return new_board, len(died_pieces), board
 
     # todo: remove code for debugging
-    def valid_moves(self, player, previous_board, new_board):
-        moves = []
-        imp_moves = []
+    def get_moves(self, player, previous_board, new_board):
+        possible_moves = []
+        legit_moves = []
         all_liberty_moves = set()
 
         for i in range(self.board_size):
@@ -121,10 +121,10 @@ class GameHost:
             tri_board = deepcopy(new_board)
             board_after_move, died_pieces, _ = self.try_move((x[0], x[1]), tri_board, player)
             if self.have_liberty((x[0], x[1]), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
-                imp_moves.append((x[0], x[1], died_pieces))
+                legit_moves.append((x[0], x[1], died_pieces))
 
-        if len(imp_moves) != 0:
-            return sorted(imp_moves, key=lambda x: x[2], reverse=True)
+        if len(legit_moves) != 0:
+            return sorted(legit_moves, key=lambda x: x[2], reverse=True)
 
         for i in range(self.board_size):
             for j in range(self.board_size):
@@ -134,6 +134,6 @@ class GameHost:
                     trial_board = deepcopy(new_board)
                     board_after_move, died_pieces, _ = self.try_move((i, j), trial_board, player)
                     if self.have_liberty((i, j), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
-                        moves.append((i, j, died_pieces))
+                        possible_moves.append((i, j, died_pieces))
 
-        return sorted(moves, key=lambda x: x[2], reverse=True)
+        return sorted(possible_moves, key=lambda x: x[2], reverse=True)

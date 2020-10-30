@@ -56,7 +56,7 @@ class Agent:
 
         max_score = float("-inf")
         max_score_actions = []
-        my_moves = self.game_host.valid_moves(player, previous_board, board)
+        my_moves = self.game_host.get_moves(player, previous_board, board)
         if len(my_moves) == 25:
             return 100, [(2, 2)]
 
@@ -97,7 +97,7 @@ class Agent:
 
         min_score = float("inf")
         min_score_actions = []
-        my_moves = self.game_host.valid_moves(player, previous_board, board)
+        my_moves = self.game_host.get_moves(player, previous_board, board)
 
         for move in my_moves:
             trial_board = deepcopy(board)
