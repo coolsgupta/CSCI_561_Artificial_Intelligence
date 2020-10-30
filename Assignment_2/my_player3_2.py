@@ -34,33 +34,6 @@ def find_neighbour_allies(i, j, board, player):
     return [neigh for neigh in neighbours if board[neigh[0]][neigh[1]] == player]
 
 
-# never used
-def all_ally_positions(i, j, board, player):
-    # https://github.com/umbriel47/aigo/blob/master/board.py#L95
-
-    if not on_board(i, j):
-        return []
-
-    all_allies = []
-    neighbors = find_neighbour_allies(i, j, board, player)
-    all_allies.append((i, j))
-    visited = {}
-    visited[(i, j)] = True
-    while True:
-        temp_list = neighbors
-        neighbors = []
-        for x, y in temp_list:
-            if (x, y) not in visited and board[x][y] == player:
-                all_allies.append((x, y))
-                visited[(x, y)] = True
-                next_neighbor = find_neighbour_allies(x, y, board, player)
-                for ne in next_neighbor:
-                    neighbors.append(ne)
-        if len(neighbors) == 0:
-            return []
-    return all_allies
-
-
 def get_all_ally_positions(i, j, board, player):
     stack = [(i, j)]
     all_allies = set()
@@ -79,12 +52,9 @@ def get_all_ally_positions(i, j, board, player):
 
 def have_liberty(i, j, board, player):
     my_all_allies = get_all_ally_positions(i, j, board, player)
-    # print("hey in function fcl",my_all_allies)
     for ally in my_all_allies:
         neighbors = find_on_board_neighbours(ally[0], ally[1])
-        # print("kiii",neighbors)
         for piece in neighbors:
-            # print("piece",piece)
             if board[piece[0]][piece[1]] == 0:
                 return True
     return False
@@ -92,14 +62,12 @@ def have_liberty(i, j, board, player):
 
 def find_died_pieces(player, board):
     died_pieces = []
-
     for i in range(0, 5):
         for j in range(0, 5):
-
             if board[i][j] == player:
-
                 if not have_liberty(i, j, board, player):
                     died_pieces.append((i, j))
+
     return died_pieces
 
 
@@ -109,31 +77,21 @@ def remove_died_pieces(died_pieces, board):
     return board
 
 
-# check for capture liberty....
-# check for self capture
 def get_liberty_positions(i, j, board, player):
-    liberties = set()
-    allyMembers = get_all_ally_positions(i, j, board, player)
-    for member in allyMembers:
+    available_positions = set()
+    for member in get_all_ally_positions(i, j, board, player):
         neighbors = find_on_board_neighbours(member[0], member[1])
-        for piece in neighbors:
-            if board[piece[0]][piece[1]] == 0:
-                liberties = liberties | set([piece])
+        available_positions.update([neigh for neigh in neighbors if board[neigh[0]][neigh[1]] == 0])
 
-    # print(i,j)
-    # print("lib",list(liberties))
-    return list(liberties)
+    return list(available_positions)
 
 
-def get_neigh_liberty_positions(i, j, board, player):
-    liberties = set()
-    neighbors = find_on_board_neighbours(i, j)
-    for piece in neighbors:
-        if board[piece[0]][piece[1]] == 0:
-            liberties = liberties | set([piece])
-    # print(i,j)
-    # print("lib",list(liberties))
-    return list(liberties)
+def get_neigh_liberty_positions(i, j, board):
+    available_positions = set()
+    available_positions.update(
+        [neigh for neigh in find_on_board_neighbours(i, j) if board[neigh[0]][neigh[1]] == 0]
+    )
+    return list(available_positions)
 
 
 def try_move(i, j, board, player):
