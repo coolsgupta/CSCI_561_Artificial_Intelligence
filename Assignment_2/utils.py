@@ -109,7 +109,7 @@ class GameHost:
         for piece in died_pieces:
             new_board[piece[0]][piece[1]] = 0
 
-        return board, len(died_pieces), new_board
+        return new_board, len(died_pieces), board
 
     # todo: remove code for debugging
     def valid_moves(self, player, previous_board, new_board):
