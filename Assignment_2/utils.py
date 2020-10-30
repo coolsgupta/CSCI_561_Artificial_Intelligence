@@ -85,7 +85,7 @@ class GameHost:
         )
         return list(available_positions)
 
-    def try_move(self, position, board, player):
+    def check_move_validity_score(self, position, board, player):
         board[position[0]][position[1]] = player
         died_pieces = self.find_died_pieces(board=board, player=3 - player)
         new_board = board
@@ -105,21 +105,21 @@ class GameHost:
                 if new_board[i][j] == player:
                     self_end = self.get_liberty_positions((i, j), new_board, player)
                     if len(self_end) == 1:
-                        all_liberty_moves = all_liberty_moves | set(self_end)
+                        all_liberty_moves.update(self_end)
                         if i == 0 or i == 4 or j == 0 or j == 4:
                             safe_positions = self.get_neigh_liberty_positions(
                                 (self_end[0][0], self_end[0][1]), new_board
                             )
                             if safe_positions:
-                                all_liberty_moves = all_liberty_moves | set(safe_positions)
+                                all_liberty_moves.update(safe_positions)
 
                 elif new_board[i][j] == 3 - player:
                     oppo_end = self.get_liberty_positions((i, j), new_board, 3 - player)
-                    all_liberty_moves = all_liberty_moves | set(oppo_end)
+                    all_liberty_moves.update(oppo_end)
 
         for x in list(all_liberty_moves):
             tri_board = deepcopy(new_board)
-            board_after_move, died_pieces, _ = self.try_move((x[0], x[1]), tri_board, player)
+            board_after_move, died_pieces, _ = self.check_move_validity_score((x[0], x[1]), tri_board, player)
             if self.have_liberty((x[0], x[1]), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
                 legit_moves.append((x[0], x[1], died_pieces))
 
@@ -128,11 +128,9 @@ class GameHost:
 
         for i in range(self.board_size):
             for j in range(self.board_size):
-
                 if new_board[i][j] == 0:
-
                     trial_board = deepcopy(new_board)
-                    board_after_move, died_pieces, _ = self.try_move((i, j), trial_board, player)
+                    board_after_move, died_pieces, _ = self.check_move_validity_score((i, j), trial_board, player)
                     if self.have_liberty((i, j), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
                         possible_moves.append((i, j, died_pieces))
 

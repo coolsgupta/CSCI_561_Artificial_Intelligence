@@ -62,7 +62,7 @@ class Agent:
 
         for move in my_moves:
             trial_board = deepcopy(board)
-            next_board, died_pieces, new_board_without_died_pieces = self.game_host.try_move((move[0], move[1]), trial_board, player)
+            next_board, died_pieces, new_board_without_died_pieces = self.game_host.check_move_validity_score((move[0], move[1]), trial_board, player)
             score, actions = self.min_move(
                 next_board, board, 3 - player, depth - 1, alpha, beta, new_board_without_died_pieces
             )
@@ -101,7 +101,7 @@ class Agent:
 
         for move in my_moves:
             trial_board = deepcopy(board)
-            next_board, died_pieces, new_board_without_died_pieces = self.game_host.try_move((move[0], move[1]), trial_board, player)
+            next_board, died_pieces, new_board_without_died_pieces = self.game_host.check_move_validity_score((move[0], move[1]), trial_board, player)
             score, actions = self.max_move(
                 next_board, board, 3 - player, depth - 1, alpha, beta, new_board_without_died_pieces
             )
