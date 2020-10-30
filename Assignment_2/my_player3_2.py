@@ -168,28 +168,6 @@ def valid_moves(player, previous_board, new_board):
 
     return sorted(moves, key=lambda x: x[2], reverse=True)
 
-    # improvise
-
-
-# agent
-# unused
-def get_group_count_with_k_liberties(board, player, k):
-    mine_grps_count = 0
-    opponent_gps_count = 0
-
-    for i in range(0, 5):
-        for j in range(0, 5):
-            if board[i][j] == player:
-                lib = get_liberty_positions(i, j, board, player)
-                if len(set(lib)) <= k:
-                    mine_grps_count = mine_grps_count + len(lib)
-            if board[i][j] == 3 - player:
-                lib = get_liberty_positions(i, j, board, 3 - player)
-                if len(set(lib)) <= k:
-                    opponent_gps_count = opponent_gps_count + len(lib)
-
-    return mine_grps_count, opponent_gps_count
-
 
 def evaluation_function(board, player, died_pieces_black, died_pieces_white):
     black_count = 0
