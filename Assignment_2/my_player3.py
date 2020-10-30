@@ -14,22 +14,22 @@ class Agent:
     def heuristic_score(self, board, player, died_pieces_black, died_pieces_white):
         black_count = 0
         white_count = 0
-        black_endangered_liberty=0
-        white_endangered_liberty=0
+        black_endangered_liberty = 0
+        white_endangered_liberty = 0
         for i in range(0, 5):
             for j in range(0, 5):
                 if board[i][j] == 1:
-                    lib=self.game_host.get_liberty_positions((i, j), board, 1)
-                    if len(lib)<=1:
-                        black_endangered_liberty=black_endangered_liberty+1
+                    lib = self.game_host.get_liberty_positions((i, j), board, 1)
+                    if len(lib) <= 1:
+                        black_endangered_liberty = black_endangered_liberty + 1
                     black_count += 1
                 elif board[i][j] == 2:
-                    lib=self.game_host.get_liberty_positions((i, j), board, 2)
-                    if len(lib)<=1:
-                        white_endangered_liberty=white_endangered_liberty+1
+                    lib = self.game_host.get_liberty_positions((i, j), board, 2)
+                    if len(lib) <= 1:
+                        white_endangered_liberty = white_endangered_liberty + 1
                     white_count += 1
         white_count = white_count + 2.5
-        if player==1:
+        if player == 1:
             eval_value = black_count-white_count+white_endangered_liberty-black_endangered_liberty+died_pieces_white*10-died_pieces_black*16
         else:
             eval_value = -black_count + white_count-white_endangered_liberty+black_endangered_liberty+died_pieces_black*10-died_pieces_white*16
@@ -127,9 +127,6 @@ class Agent:
             self.current_board
         )
         IOManager.write_move(actions[0] if len(actions) > 0 else 'PASS')
-
-    # def play(self):
-    #     IOManager.write_move(self.best_move())
 
 
 if __name__ == '__main__':
