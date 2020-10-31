@@ -91,11 +91,10 @@ class Agent:
                 max_score = score
                 max_score_actions = [move] + actions
 
-            if max_score > beta:
-                return max_score, max_score_actions
+            alpha = max(alpha, max_score)
 
-            if max_score > alpha:
-                alpha = max_score
+            if alpha >= beta:
+                break
 
         return max_score, max_score_actions
 
@@ -139,19 +138,14 @@ class Agent:
                 beta=beta,
                 new_board_without_died_pieces=new_board_without_died_pieces
             )
-            #     self.max_move(
-            #     next_board, board, 3 - player, depth - 1, alpha, beta, new_board_without_died_pieces
-            # )
-
             if score < min_score:
                 min_score = score
                 min_score_actions = [move] + actions
 
-            if min_score < alpha:
-                return min_score, min_score_actions
+            beta = min(beta, min_score)
 
-            if min_score < beta:
-                alpha = min_score
+            if beta <= alpha:
+                break
 
         return min_score, min_score_actions
 
