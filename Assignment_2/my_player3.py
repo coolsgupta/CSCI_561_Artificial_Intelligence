@@ -5,7 +5,7 @@ class Agent:
     def __init__(self):
         self.get_host()
         self.board_size = 5
-        self.depth = 4
+        self.tree_depth_leeway = 4
         self.komi = 2.5
         self.score_black = 0
         self.score_white = 0
@@ -48,116 +48,118 @@ class Agent:
         board = kwargs.get('board')
         previous_board = kwargs.get('previous_board')
         player = kwargs.get('player')
-        depth = kwargs.get('depth')
+        tree_depth_leeway = kwargs.get('tree_depth_leeway')
         alpha = kwargs.get('alpha')
         beta = kwargs.get('beta')
-        new_board_without_died_pieces = kwargs.get('new_board_without_died_pieces')
+        board_retain_pieces = kwargs.get('board_retain_pieces')
 
         if player == 2:
-            died_pieces_white = len(self.game_host.find_died_pieces(new_board_without_died_pieces, player))
-            self.score_white = self.score_white + died_pieces_white
-        if player == 1:
-            died_pieces_black = len(self.game_host.find_died_pieces(new_board_without_died_pieces, player))
-            self.score_black = self.score_black + died_pieces_black
+            self.score_white += len(self.game_host.find_died_pieces(board_retain_pieces, player))
 
-        if depth == 0:
+        if player == 1:
+            self.score_black += len(self.game_host.find_died_pieces(board_retain_pieces, player))
+
+        if tree_depth_leeway < 1:
             value = self.heuristic_score(board, player, self.score_black, self.score_white)
             if player == 1:
-                self.score_black = self.score_black - len(self.game_host.find_died_pieces(new_board_without_died_pieces, 1))
+                self.score_black -= len(self.game_host.find_died_pieces(board_retain_pieces, 1))
             if player == 2:
-                self.score_white = self.score_white - len(self.game_host.find_died_pieces(new_board_without_died_pieces, 2))
-            return value, []
+                self.score_white -= len(self.game_host.find_died_pieces(board_retain_pieces, 2))
 
-        max_score = float("-inf")
-        max_score_actions = []
-        my_moves = self.game_host.get_moves(player, previous_board, board)
-        if len(my_moves) == 25:
-            return 100, [(2, 2)]
+            new_alpha_max_val, available_actions = value, []
 
-        for move in my_moves:
-            trial_board = deepcopy(board)
-            next_board, died_pieces, new_board_without_died_pieces = self.game_host.check_move_validity_score((move[0], move[1]), trial_board, player)
-            score, actions = self.min_move(
-                board=next_board,
-                previous_board=board,
-                player=3 - player,
-                depth=depth - 1,
-                alpha=alpha,
-                beta=beta,
-                new_board_without_died_pieces=new_board_without_died_pieces
-            )
+        else:
+            new_alpha_max_val = float("-inf")
+            available_actions = []
+            my_moves = self.game_host.get_moves(player, previous_board, board)
+            if len(my_moves) == 25:
+                return 100, [(2, 2)]
 
-            if score > max_score:
-                max_score = score
-                max_score_actions = [move] + actions
+            for move in my_moves:
+                trial_board = deepcopy(board)
+                next_board, died_pieces, board_retain_pieces = self.game_host.check_move_validity_score((move[0], move[1]), trial_board, player)
+                score, actions = self.min_move(
+                    board=next_board,
+                    previous_board=board,
+                    player=3 - player,
+                    tree_depth_leeway=tree_depth_leeway - 1,
+                    alpha=alpha,
+                    beta=beta,
+                    board_retain_pieces=board_retain_pieces
+                )
 
-            alpha = max(alpha, max_score)
+                if score > new_alpha_max_val:
+                    new_alpha_max_val = score
+                    available_actions = [move] + actions
 
-            if alpha >= beta:
-                break
+                if new_alpha_max_val > beta:
+                    break
 
-        return max_score, max_score_actions
+                alpha = max(alpha, new_alpha_max_val)
+
+        return new_alpha_max_val, available_actions
 
     def min_move(self, **kwargs):
         board = kwargs.get('board')
         previous_board = kwargs.get('previous_board')
         player = kwargs.get('player')
-        depth = kwargs.get('depth')
+        tree_depth_leeway = kwargs.get('tree_depth_leeway')
         alpha = kwargs.get('alpha')
         beta = kwargs.get('beta')
-        new_board_without_died_pieces = kwargs.get('new_board_without_died_pieces')
+        board_retain_pieces = kwargs.get('board_retain_pieces')
 
         if player == 2:
-            died_pieces_white = len(self.game_host.find_died_pieces(new_board_without_died_pieces, player))
-            self.score_white = self.score_white + died_pieces_white
-        if player == 1:
-            died_pieces_black = len(self.game_host.find_died_pieces(new_board_without_died_pieces, player))
-            self.score_black = self.score_black + died_pieces_black
+            self.score_white += len(self.game_host.find_died_pieces(board_retain_pieces, player))
 
-        if depth == 0:
+        if player == 1:
+            self.score_black += len(self.game_host.find_died_pieces(board_retain_pieces, player))
+
+        if tree_depth_leeway < 1:
             value = self.heuristic_score(board, player, self.score_black, self.score_white)
             if player == 1:
-                self.score_black = self.score_black - len(self.game_host.find_died_pieces(new_board_without_died_pieces, 1))
+                self.score_black -= len(self.game_host.find_died_pieces(board_retain_pieces, 1))
             if player == 2:
-                self.score_white = self.score_white - len(self.game_host.find_died_pieces(new_board_without_died_pieces, 2))
-            return value, []
+                self.score_white -= len(self.game_host.find_died_pieces(board_retain_pieces, 2))
 
-        min_score = float("inf")
-        min_score_actions = []
-        my_moves = self.game_host.get_moves(player, previous_board, board)
+            new_beta_min_val, available_actions = value, []
 
-        for move in my_moves:
-            trial_board = deepcopy(board)
-            next_board, died_pieces, new_board_without_died_pieces = self.game_host.check_move_validity_score((move[0], move[1]), trial_board, player)
-            score, actions = self.max_move(
-                board=next_board,
-                previous_board=board,
-                player=3 - player,
-                depth=depth - 1,
-                alpha=alpha,
-                beta=beta,
-                new_board_without_died_pieces=new_board_without_died_pieces
-            )
-            if score < min_score:
-                min_score = score
-                min_score_actions = [move] + actions
+        else:
+            new_beta_min_val = float("inf")
+            available_actions = []
+            my_moves = self.game_host.get_moves(player, previous_board, board)
 
-            beta = min(beta, min_score)
+            for move in my_moves:
+                trial_board = deepcopy(board)
+                next_board, died_pieces, board_retain_pieces = self.game_host.check_move_validity_score((move[0], move[1]), trial_board, player)
+                score, actions = self.max_move(
+                    board=next_board,
+                    previous_board=board,
+                    player=3 - player,
+                    tree_depth_leeway=tree_depth_leeway - 1,
+                    alpha=alpha,
+                    beta=beta,
+                    board_retain_pieces=board_retain_pieces
+                )
+                if score < new_beta_min_val:
+                    new_beta_min_val = score
+                    available_actions = [move] + actions
 
-            if beta <= alpha:
-                break
+                if new_beta_min_val < alpha:
+                    break
 
-        return min_score, min_score_actions
+                beta = min(beta, new_beta_min_val)
+
+        return new_beta_min_val, available_actions
 
     def play(self):
         score, actions = self.max_move(
             board=self.current_board,
             previous_board=self.previous_board,
             player=self.my_player,
-            depth=self.depth,
+            tree_depth_leeway=self.tree_depth_leeway,
             alpha=float("-inf"),
             beta=float("inf"),
-            new_board_without_died_pieces=self.current_board
+            board_retain_pieces=self.current_board
         )
         IOManager.write_move(actions[0] if len(actions) > 0 else 'PASS')
 
