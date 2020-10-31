@@ -78,13 +78,6 @@ class GameHost:
 
         return list(available_positions)
 
-    def get_neigh_liberty_positions(self, position, board):
-        available_positions = set()
-        available_positions.update(
-            [neigh for neigh in self.find_on_board_neighbours(position) if board[neigh[0]][neigh[1]] == 0]
-        )
-        return list(available_positions)
-
     def check_move_validity_score(self, position, board, player):
         board[position[0]][position[1]] = player
         died_pieces = self.find_died_pieces(board=board, player=3 - player)
@@ -94,44 +87,64 @@ class GameHost:
 
         return new_board, len(died_pieces), board
 
-    # todo: remove code for debugging
-    def get_moves(self, player, previous_board, new_board):
-        possible_moves = []
-        legit_moves = []
+    def get_all_liberty_moves(self, new_board, player):
         all_liberty_moves = set()
-
         for i in range(self.board_size):
             for j in range(self.board_size):
                 if new_board[i][j] == player:
-                    self_end = self.get_liberty_positions((i, j), new_board, player)
-                    if len(self_end) == 1:
-                        all_liberty_moves.update(self_end)
+                    last = self.get_liberty_positions((i, j), new_board, player)
+                    if len(last) == 1:
+                        all_liberty_moves.update(last)
                         if i == 0 or i == 4 or j == 0 or j == 4:
-                            safe_positions = self.get_neigh_liberty_positions(
-                                (self_end[0][0], self_end[0][1]), new_board
+                            available_places = set()
+                            available_places.update(
+                                [neigh for neigh in self.find_on_board_neighbours((last[0][0], last[0][1])) if new_board[neigh[0]][neigh[1]] == 0]
                             )
-                            if safe_positions:
-                                all_liberty_moves.update(safe_positions)
+                            if available_places:
+                                all_liberty_moves.update(available_places)
 
                 elif new_board[i][j] == 3 - player:
-                    oppo_end = self.get_liberty_positions((i, j), new_board, 3 - player)
-                    all_liberty_moves.update(oppo_end)
+                    end_2 = self.get_liberty_positions((i, j), new_board, 3 - player)
+                    all_liberty_moves.update(end_2)
 
-        for x in list(all_liberty_moves):
-            tri_board = deepcopy(new_board)
-            board_after_move, died_pieces, _ = self.check_move_validity_score((x[0], x[1]), tri_board, player)
-            if self.have_liberty((x[0], x[1]), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
-                legit_moves.append((x[0], x[1], died_pieces))
+        return list(all_liberty_moves)
 
-        if len(legit_moves) != 0:
-            return sorted(legit_moves, key=lambda x: x[2], reverse=True)
-
+    def get_poss_move(self, previous_board, new_board, player):
+        moves = []
         for i in range(self.board_size):
             for j in range(self.board_size):
                 if new_board[i][j] == 0:
                     trial_board = deepcopy(new_board)
                     board_after_move, died_pieces, _ = self.check_move_validity_score((i, j), trial_board, player)
                     if self.have_liberty((i, j), board_after_move, player) and board_after_move != new_board and board_after_move != previous_board:
-                        possible_moves.append((i, j, died_pieces))
+                        moves.append((i, j, died_pieces))
 
-        return sorted(possible_moves, key=lambda x: x[2], reverse=True)
+        return moves
+
+    def get_legit_moves(self, previous_board, new_board, player, all_liberty_moves):
+        legit_moves = []
+        for x in all_liberty_moves:
+            trial = deepcopy(new_board)
+            tried_move_b, died_pieces, _ = self.check_move_validity_score((x[0], x[1]), trial, player)
+            if self.have_liberty((x[0], x[1]), tried_move_b, player) and tried_move_b != new_board and tried_move_b != previous_board:
+                legit_moves.append((x[0], x[1], died_pieces))
+
+        if len(legit_moves) == 0:
+            legit_moves = self.get_poss_move(previous_board, new_board, player)
+
+        return legit_moves
+
+    def get_moves(self, player, previous_board, new_board):
+        return sorted(
+            self.get_legit_moves(
+                previous_board,
+                new_board,
+                player,
+                self.get_all_liberty_moves(
+                    new_board,
+                    player
+                )
+            ),
+            key=lambda x: x[2],
+            reverse=True
+        )
