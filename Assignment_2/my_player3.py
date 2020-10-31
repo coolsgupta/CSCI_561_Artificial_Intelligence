@@ -95,7 +95,8 @@ class Agent:
                 if new_alpha_max_val > beta:
                     break
 
-                alpha = max(alpha, new_alpha_max_val)
+                if new_alpha_max_val > alpha:
+                    alpha = new_alpha_max_val
 
         return new_alpha_max_val, available_actions
 
@@ -147,7 +148,8 @@ class Agent:
                 if new_beta_min_val < alpha:
                     break
 
-                beta = min(beta, new_beta_min_val)
+                if new_beta_min_val < beta:
+                    alpha = new_beta_min_val
 
         return new_beta_min_val, available_actions
 
